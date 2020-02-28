@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="cvek_domain_events_subscriber" class="Cvek\DomainEventsBundle\EventDispatch\Listener\DomainEventsSubscriber" public="false" >
+            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface" />
+            <tag name="doctrine.event_subscriber" connection="default" />
+        </service>
+        <service id="Cvek\DomainEventsBundle\EventDispatch\Listener\DomainEventsSubscriber" alias="cvek_domain_events_subscriber" public="false" />
+    </services>
+</container>
