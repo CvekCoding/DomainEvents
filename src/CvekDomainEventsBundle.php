@@ -16,5 +16,4 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 final class CvekDomainEventsBundle extends Bundle
 {
-
 }
