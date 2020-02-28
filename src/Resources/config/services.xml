@@ -5,7 +5,7 @@
         http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="cvek_domain_events_subscriber" class="Cvek\DomainEventsBundle\EventDispatch\Listener\DomainEventsSubscriber" public="false" >
-            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface" />
+            <argument type="service" id="event_dispatcher" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
         <service id="Cvek\DomainEventsBundle\EventDispatch\Listener\DomainEventsSubscriber" alias="cvek_domain_events_subscriber" public="false" />
