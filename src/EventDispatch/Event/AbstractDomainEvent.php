@@ -32,7 +32,7 @@ abstract class AbstractDomainEvent extends Event implements DomainEventInterface
     /**
      * @param string $lifecycleEvent
      */
-    public function setLifecycleEvent(string $lifecycleEvent): self
+    public function setLifecycleEvent(string $lifecycleEvent): DomainEventInterface
     {
         $this->lifecycleEvent = $lifecycleEvent;
 
