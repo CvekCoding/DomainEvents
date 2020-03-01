@@ -55,7 +55,7 @@ final class DomainEventsSubscriber implements EventSubscriber
                  return $entity->popEvents();
              })
              ->each(function (DomainEventInterface $event) {
-                 $this->bus->dispatch($event->setLifecycleEvent(Events::preFlush));
+                 $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
              })
         ;
     }
