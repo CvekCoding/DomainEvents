@@ -14,7 +14,7 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class AbstractDomainEvent extends Event implements DomainEventInterface
+abstract class AbstractDomainEvent extends Event implements DomainEventInterface
 {
     /**
      * @var string
