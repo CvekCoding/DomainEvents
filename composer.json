@@ -17,7 +17,8 @@
         "symfony/event-dispatcher": "^4.0",
         "symfony/doctrine-bridge": "^4.0",
         "doctrine/orm": "^2.0",
-        "tightenco/collect": "dev-SymfonySupport as 6.0.3"
+        "tightenco/collect": "dev-SymfonySupport as 6.0.3",
+        "symfony/messenger": "^5.0"
     }
     ,
     "require-dev": {
