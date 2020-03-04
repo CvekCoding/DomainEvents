@@ -64,6 +64,8 @@ final class DomainEventsSubscriber implements EventSubscriber
                 $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush));
             })
         ;
+
+        $this->preFlushAlreadyInvoked = false;
     }
 
     public function onFlush(OnFlushEventArgs $eventArgs): void
@@ -81,6 +83,8 @@ final class DomainEventsSubscriber implements EventSubscriber
                  $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
              })
         ;
+
+        $this->onFlushAlreadyInvoked = false;
     }
 
     /**
