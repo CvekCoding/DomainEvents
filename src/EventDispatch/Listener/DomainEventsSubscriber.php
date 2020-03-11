@@ -45,6 +45,7 @@ final class DomainEventsSubscriber implements EventSubscriber
     public function getSubscribedEvents(): array
     {
         return [
+            Events::preFlush,
             Events::onFlush,
         ];
     }
