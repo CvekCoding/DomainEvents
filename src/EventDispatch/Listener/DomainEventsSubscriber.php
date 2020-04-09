@@ -17,9 +17,9 @@ use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
@@ -27,14 +27,13 @@ final class DomainEventsSubscriber implements EventSubscriber
 {
     private bool $preFlushAlreadyInvoked = false;
     private bool $onFlushAlreadyInvoked = false;
+    private bool $postFlushAlreadyInvoked = false;
 
     private EventDispatcherInterface $eventDispatcher;
-    private MessageBusInterface $bus;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, MessageBusInterface $bus)
+    public function __construct(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->bus = $bus;
     }
 
     /**
@@ -47,6 +46,7 @@ final class DomainEventsSubscriber implements EventSubscriber
         return [
             Events::preFlush,
             Events::onFlush,
+            Events::postFlush,
         ];
     }
 
@@ -77,18 +77,39 @@ final class DomainEventsSubscriber implements EventSubscriber
         $this->onFlushAlreadyInvoked = true;
 
         $this->fillEntities($eventArgs)
-             ->flatMap(static function (RaiseEventsInterface $entity) {
-                 return $entity->popEvents();
-             })
-             ->each(function (DomainEventInterface $event) {
-                 $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
-             })
+            ->flatMap(static function (RaiseEventsInterface $entity) {
+                return $entity->popEvents();
+            })
+            ->each(function (DomainEventInterface $event) {
+                $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush));
+            })
         ;
 
         $this->onFlushAlreadyInvoked = false;
     }
 
+    public function postFlush(PostFlushEventArgs $eventArgs): void
+    {
+        if ($this->postFlushAlreadyInvoked) {
+            return;
+        }
+        $this->postFlushAlreadyInvoked = true;
+
+        $this->fillEntities($eventArgs)
+            ->flatMap(static function (RaiseEventsInterface $entity) {
+                return $entity->popEvents();
+            })
+            ->each(function (DomainEventInterface $event) {
+                $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush));
+            })
+        ;
+
+        $this->postFlushAlreadyInvoked = false;
+    }
+
     /**
+     * @param PreFlushEventArgs|OnFlushEventArgs|PostFlushEventArgs $eventArgs
+     *
      * @return RaiseEventsInterface[]
      */
     private function fillEntities(EventArgs $eventArgs): Collection
