@@ -102,6 +102,14 @@ final class DomainEventsSubscriber implements EventSubscriber
             $domainEventsEntities = $domainEventsEntities->merge($entities);
         }
 
+        foreach ($eventArgs->getEntityManager()->getUnitOfWork()->getScheduledEntityDeletions() as $entityToDelete) {
+            if (!$entityToDelete instanceof RaiseEventsInterface) {
+                continue;
+            }
+
+            $domainEventsEntities->add($entityToDelete);
+        }
+
         return $domainEventsEntities;
     }
 }
