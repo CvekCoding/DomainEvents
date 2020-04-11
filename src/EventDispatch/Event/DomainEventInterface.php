@@ -14,13 +14,12 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
 interface DomainEventInterface
 {
-    /**
-     * @return string
-     */
     public function getLifecycleEvent(): string;
 
-    /**
-     * @param string $lifecycleEvent
-     */
     public function setLifecycleEvent(string $lifecycleEvent): self;
+
+    /**
+     * Use bus to persist event and launch it later in bus handler
+     */
+    public function isAsync(): bool;
 }

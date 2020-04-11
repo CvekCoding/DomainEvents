@@ -20,6 +20,7 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
@@ -30,10 +31,12 @@ final class DomainEventsSubscriber implements EventSubscriber
     private bool $postFlushAlreadyInvoked = false;
 
     private EventDispatcherInterface $eventDispatcher;
+    private MessageBusInterface $bus;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(EventDispatcherInterface $eventDispatcher, MessageBusInterface $bus)
     {
         $this->eventDispatcher = $eventDispatcher;
+        $this->bus = $bus;
     }
 
     /**
@@ -81,7 +84,11 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush));
+                if ($event->isAsync()) {
+                    $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
+                } else {
+                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush));
+                }
             })
         ;
 
@@ -100,7 +107,11 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush));
+                if ($event->isAsync()) {
+                    $this->bus->dispatch($event->setLifecycleEvent(Events::postFlush));
+                } else {
+                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush));
+                }
             })
         ;
 
