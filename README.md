@@ -9,7 +9,7 @@ Domain events are of three types:
 To use this bundle implement `RaiseEventsInterface` interface in your entity class and create your custom domain events. We recommend you to use `RaiseEventsTrait` to simplify this even more.
 
 ## Sync/Async messages
-Any domain event can be executed in a `sync` or an `async` way during `onFlush` and `postFlush` Doctrine events. `DomainEventInterface` will make you make a choice:).
+Any domain event can be executed in a `sync` or an `async` way during `onFlush` and `postFlush` Doctrine events. `DomainEventInterface` will make you make a choice:). But we recommend extend one of abstract classes: `AbstractSyncDomainEvent` or `AbstractAsyncDomainEvent`.
 
 Async way is a very powerful approach and must be used in the following cases:
 * you want to postpone some time-consuming or remote tasks;

@@ -12,27 +12,16 @@ declare(strict_types=1);
 
 namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
-use Symfony\Contracts\EventDispatcher\Event;
-
-abstract class AbstractDomainEvent extends Event implements DomainEventInterface
+trait DomainEventTrait
 {
-    /**
-     * @var string
-     */
     private string $lifecycleEvent;
 
-    /**
-     * @return string|null
-     */
     public function getLifecycleEvent(): string
     {
         return $this->lifecycleEvent;
     }
 
-    /**
-     * @param string $lifecycleEvent
-     */
-    public function setLifecycleEvent(string $lifecycleEvent): DomainEventInterface
+    public function setLifecycleEvent(string $lifecycleEvent): self
     {
         $this->lifecycleEvent = $lifecycleEvent;
 

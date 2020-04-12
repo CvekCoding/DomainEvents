@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
-interface DomainEventInterface
+use Symfony\Contracts\EventDispatcher\Event;
+
+abstract class AbstractAsyncDomainEvent extends Event implements DomainEventInterface
 {
-    public function getLifecycleEvent(): string;
+    use DomainEventTrait;
 
-    public function setLifecycleEvent(string $lifecycleEvent);
-
-    /**
-     * Use bus to persist event and launch it later in bus handler
-     */
-    public function isAsync(): bool;
+    public function isAsync(): bool
+    {
+        return true;
+    }
 }
