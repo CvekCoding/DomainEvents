@@ -10,18 +10,18 @@
 
 namespace Cvek\DomainEventsBundle\Entity;
 
-use Symfony\Contracts\EventDispatcher\Event;
+use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 
 interface RaiseEventsInterface
 {
     /**
-     * @return Event[]
+     * @return DomainEventInterface[]
      */
     public function popEvents(): array;
 
-    public function raise(Event $event);
+    public function raise(DomainEventInterface $event);
 
     public function clearEvents();
 
-    public function hasEvent(Event $event): bool;
+    public function hasEvent(DomainEventInterface $event): bool;
 }

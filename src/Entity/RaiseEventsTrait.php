@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace Cvek\DomainEventsBundle\Entity;
 
-use Symfony\Contracts\EventDispatcher\Event;
+use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 
 trait RaiseEventsTrait
 {
     /**
-     * @var Event[]
+     * @var DomainEventInterface[]
      */
     private array $events = [];
 
     /**
-     * @return Event[]
+     * @return DomainEventInterface[]
      */
     public function popEvents(): array
     {
@@ -36,7 +36,7 @@ trait RaiseEventsTrait
         return $this;
     }
 
-    public function raise(Event $event): self
+    public function raise(DomainEventInterface $event): self
     {
         $this->events[] = $event;
 
@@ -44,7 +44,7 @@ trait RaiseEventsTrait
     }
 
     /**
-     * @param Event|string $needle
+     * @param DomainEventInterface|string $needle
      *
      * @return bool
      */

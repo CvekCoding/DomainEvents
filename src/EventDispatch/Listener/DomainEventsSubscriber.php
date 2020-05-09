@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Cvek\DomainEventsBundle\EventDispatch\Listener;
 
 use Cvek\DomainEventsBundle\Entity\RaiseEventsInterface;
+use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractAsyncDomainEvent;
 use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventSubscriber;
@@ -84,7 +85,7 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                if ($event->isAsync()) {
+                if ($event instanceof AbstractAsyncDomainEvent) {
                     $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
                 } else {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush));
@@ -107,7 +108,7 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                if ($event->isAsync()) {
+                if ($event instanceof AbstractAsyncDomainEvent) {
                     $this->bus->dispatch($event->setLifecycleEvent(Events::postFlush));
                 } else {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush));

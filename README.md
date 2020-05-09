@@ -9,7 +9,7 @@ Domain events are of three types:
 To use this bundle implement `RaiseEventsInterface` interface in your entity class and create your custom domain events. We recommend you to use `RaiseEventsTrait` to simplify this even more.
 
 ## Sync/Async messages
-Any domain event can be executed in a `sync` or an `async` way during `onFlush` and `postFlush` Doctrine events. `DomainEventInterface` will make you make a choice:). But we recommend extend one of abstract classes: `AbstractSyncDomainEvent` or `AbstractAsyncDomainEvent`.
+Any domain event can be executed in a `sync` or an `async` way during `onFlush` and `postFlush` Doctrine events. Extend one of abstract classes: `AbstractSyncDomainEvent` or `AbstractAsyncDomainEvent` to have `sync` or `async` event respectively.
 
 Async way is a very powerful approach and must be used in the following cases:
 * you want to postpone some time-consuming or remote tasks;
@@ -40,9 +40,9 @@ stdout_logfile_maxbytes=0
 #### Create domain event
 ##### Sync event
 ```php
-use \Cvek\DomainEventsBundle\EventDispatch\Event\AbstractDomainEvent;
+use \Cvek\DomainEventsBundle\EventDispatch\Event\AbstractSyncDomainEvent;
 
-final class FooNameChanged extends AbstractDomainEvent
+final class FooNameChanged extends AbstractSyncDomainEvent
 {
     private Foo $foo;
     private string $oldName;
@@ -78,9 +78,9 @@ final class FooNameChanged extends AbstractDomainEvent
 ```
 ##### Async event
 ```php
-use \Cvek\DomainEventsBundle\EventDispatch\Event\AbstractDomainEvent;
+use \Cvek\DomainEventsBundle\EventDispatch\Event\AbstractAsyncDomainEvent;
 
-final class FooPasswordChanged extends AbstractDomainEvent
+final class FooPasswordChanged extends AbstractAsyncDomainEvent
 {
     private Foo $foo;
     private string $password;

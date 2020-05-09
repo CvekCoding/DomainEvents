@@ -12,14 +12,15 @@ declare(strict_types=1);
 
 namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
+/**
+ * @internal Don't implement it!
+ *
+ * @see AbstractAsyncDomainEvent
+ * @see AbstractSyncDomainEvent
+ */
 interface DomainEventInterface
 {
     public function getLifecycleEvent(): string;
 
     public function setLifecycleEvent(string $lifecycleEvent);
-
-    /**
-     * Use bus to persist event and launch it later in bus handler
-     */
-    public function isAsync(): bool;
 }

@@ -12,14 +12,7 @@ declare(strict_types=1);
 
 namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
-use Symfony\Contracts\EventDispatcher\Event;
-
-abstract class AbstractSyncDomainEvent extends Event implements DomainEventInterface
+abstract class AbstractSyncDomainEvent implements DomainEventInterface
 {
     use DomainEventTrait;
-
-    public function isAsync(): bool
-    {
-        return false;
-    }
 }
