@@ -66,7 +66,9 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush));
+               if ($event instanceof AbstractSyncDomainEvent) {
+                   $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush));
+               }
             })
         ;
 
