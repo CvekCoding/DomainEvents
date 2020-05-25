@@ -3,6 +3,7 @@
     "description": "Component to add domain events feature",
     "type": "symfony-bundle",
     "license": "MIT",
+    "keywords": ["domain", "event", "ddd", "domain events", "symfony"],
     "authors": [
         {
             "name": "Sergey Logachev",
