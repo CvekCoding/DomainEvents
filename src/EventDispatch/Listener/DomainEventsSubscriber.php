@@ -15,7 +15,7 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Listener;
 use Cvek\DomainEventsBundle\Entity\RaiseEventsInterface;
 use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractAsyncDomainEvent;
 use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractSyncDomainEvent;
-use Cvek\DomainEventsBundle\EventDispatch\Event\DirectAsyncDomainEvent;
+use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractDirectAsyncDomainEvent;
 use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventSubscriber;
@@ -94,7 +94,7 @@ final class DomainEventsSubscriber implements EventSubscriber
                 } elseif ($event instanceof AbstractSyncDomainEvent) {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush));
                 } else {
-                    /** @var DirectAsyncDomainEvent $event */
+                    /** @var AbstractDirectAsyncDomainEvent $event */
                     if (!$event->isAlreadyDispatched() && $event->getLifecycleEvent() === Events::onFlush) {
                         $this->bus->dispatch($event->setDispatched());
                     }
@@ -122,7 +122,7 @@ final class DomainEventsSubscriber implements EventSubscriber
                 } elseif ($event instanceof AbstractSyncDomainEvent) {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush));
                 } else {
-                    /** @var DirectAsyncDomainEvent $event */
+                    /** @var AbstractDirectAsyncDomainEvent $event */
                     if (!$event->isAlreadyDispatched() && $event->getLifecycleEvent() === Events::postFlush) {
                         $this->bus->dispatch($event->setDispatched());
                     }

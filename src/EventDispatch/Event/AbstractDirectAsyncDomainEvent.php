@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
-abstract class DirectAsyncDomainEvent implements DomainEventInterface
+abstract class AbstractDirectAsyncDomainEvent implements DomainEventInterface
 {
     private string $lifecycleEvent;
     private bool $alreadyDispatched = false;
@@ -25,6 +25,10 @@ abstract class DirectAsyncDomainEvent implements DomainEventInterface
     public function getLifecycleEvent(): string
     {
         return $this->lifecycleEvent;
+    }
+
+    public function setLifecycleEvent(string $lifecycleEvent)
+    {
     }
 
     public function isAlreadyDispatched(): bool

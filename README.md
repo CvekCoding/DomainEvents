@@ -30,7 +30,22 @@ redirect_stderr=true
 stdout_logfile=/dev/stdout
 stdout_logfile_maxbytes=0
 ```
-> :warning: **Dont forget to add it to your application!**
+:warning: **Dont forget to add it to your application!**
+
+## Direct Async message
+If you dont want to write your own async message handler, but dispatch your message directly, then simply extend `AbstractDirectAsyncDomainEvent` in your message and use it this way:
+```php
+use Doctrine\ORM\Events;
+
+public function setName(string $name): self
+{
+    $this->name = $name;
+    $this->raise(new NameChangedDirectAsyncMessage(Events::postFlush, $this));
+
+    return $this;
+}
+```
+The message will be dispatched directly to bus, without of need to write your own handler.
 
 ## Example
 ### Install
