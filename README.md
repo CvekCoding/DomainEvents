@@ -177,7 +177,7 @@ final class FooNameListener implements EventSubscriberInterface
         }
 
         if ($event->getLifecycleEvent() === Events::postFlush) {
-            // your custom logic on onFlush moment        
+            // your custom logic on postFlush moment        
         }
     }
 }
@@ -196,7 +196,7 @@ final class FooPasswordHandler implements MessageHandlerInterface
         }
 
         if ($event->getLifecycleEvent() === Events::onFlush) {
-            // your custom logic on postFlush moment        
+            // your custom logic on onFlush moment        
         }
 
         if ($event->getLifecycleEvent() === Events::postFlush) {
