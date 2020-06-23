@@ -117,15 +117,8 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                if ($event instanceof AbstractAsyncDomainEvent) {
-                    $this->bus->dispatch($event->setLifecycleEvent(Events::postFlush));
-                } elseif ($event instanceof AbstractSyncDomainEvent) {
+                if ($event instanceof AbstractSyncDomainEvent) {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush));
-                } else {
-                    /** @var AbstractDirectAsyncDomainEvent $event */
-                    if (!$event->isAlreadyDispatched() && $event->getLifecycleEvent() === Events::postFlush) {
-                        $this->bus->dispatch($event->setDispatched());
-                    }
                 }
             })
         ;
