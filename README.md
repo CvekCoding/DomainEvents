@@ -40,7 +40,7 @@ use Doctrine\ORM\Events;
 public function setName(string $name): self
 {
     $this->name = $name;
-    $this->raise(new NameChangedDirectAsyncMessage(Events::postFlush, $this));
+    $this->raise(new NameChangedDirectAsyncMessage($this));
 
     return $this;
 }

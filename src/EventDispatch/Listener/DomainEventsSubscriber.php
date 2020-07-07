@@ -15,7 +15,6 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Listener;
 use Cvek\DomainEventsBundle\Entity\RaiseEventsInterface;
 use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractAsyncDomainEvent;
 use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractSyncDomainEvent;
-use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractDirectAsyncDomainEvent;
 use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventSubscriber;
@@ -91,13 +90,10 @@ final class DomainEventsSubscriber implements EventSubscriber
             ->each(function (DomainEventInterface $event) {
                 if ($event instanceof AbstractAsyncDomainEvent) {
                     $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
-                } elseif ($event instanceof AbstractSyncDomainEvent) {
+                } else if ($event instanceof AbstractSyncDomainEvent) {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush));
-                } else {
-                    /** @var AbstractDirectAsyncDomainEvent $event */
-                    if (!$event->isAlreadyDispatched() && $event->getLifecycleEvent() === Events::onFlush) {
-                        $this->bus->dispatch($event->setDispatched());
-                    }
+                } else if (!$event->isAlreadyDispatched()) {
+                    $this->bus->dispatch($event->setDispatched());
                 }
             })
         ;
