@@ -18,7 +18,7 @@ abstract class AbstractDirectAsyncDomainEvent implements DomainEventInterface
 {
     private bool $alreadyDispatched = false;
 
-    public function getLifecycleEvent(): string
+    public function getLifecycleEvent(): ?string
     {
         return Events::onFlush;
     }

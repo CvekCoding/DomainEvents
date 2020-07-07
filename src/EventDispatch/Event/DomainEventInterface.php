@@ -20,7 +20,7 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Event;
  */
 interface DomainEventInterface
 {
-    public function getLifecycleEvent(): string;
+    public function getLifecycleEvent(): ?string;
 
     public function setLifecycleEvent(string $lifecycleEvent);
 }

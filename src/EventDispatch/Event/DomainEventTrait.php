@@ -14,9 +14,9 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Event;
 
 trait DomainEventTrait
 {
-    private string $lifecycleEvent;
+    private ?string $lifecycleEvent = null;
 
-    public function getLifecycleEvent(): string
+    public function getLifecycleEvent(): ?string
     {
         return $this->lifecycleEvent;
     }
