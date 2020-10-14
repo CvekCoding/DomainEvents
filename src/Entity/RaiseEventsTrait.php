@@ -48,8 +48,12 @@ trait RaiseEventsTrait
      *
      * @return bool
      */
-    public function hasEvent($needle): bool
+    public function hasEvent($needle = null): bool
     {
+        if (!isset($needle)) {
+            return false;
+        }
+
         foreach ($this->events as $event) {
             if ($event instanceof $needle) {
                 return true;
