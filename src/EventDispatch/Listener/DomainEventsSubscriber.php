@@ -14,6 +14,7 @@ namespace Cvek\DomainEventsBundle\EventDispatch\Listener;
 
 use Cvek\DomainEventsBundle\Entity\RaiseEventsInterface;
 use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractAsyncDomainEvent;
+use Cvek\DomainEventsBundle\EventDispatch\Event\AbstractSyncDomainEvent;
 use Cvek\DomainEventsBundle\EventDispatch\Event\CustomDomainEventInterface;
 use Cvek\DomainEventsBundle\EventDispatch\Event\DomainEventInterface;
 use Doctrine\Common\EventArgs;
@@ -67,11 +68,15 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                if ($event instanceof CustomDomainEventInterface) {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush), $event->getEventName());
-                } else {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush));
+                if (!$event instanceof AbstractSyncDomainEvent) {
+                    return;
                 }
+
+                $eventName = $event instanceof CustomDomainEventInterface
+                    ? $event->getEventName()
+                    : \get_class($event);
+
+                $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush), $eventName);
             })
         ;
 
@@ -90,12 +95,16 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
+                $eventName = $event instanceof CustomDomainEventInterface
+                    ? $event->getEventName()
+                    : \get_class($event);
+
                 if ($event instanceof AbstractAsyncDomainEvent) {
                     $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
-                } else if ($event instanceof CustomDomainEventInterface) {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush), $event->getEventName());
-                } else {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush));
+                } else if ($event instanceof AbstractSyncDomainEvent) {
+                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush) , $eventName);
+                } else if (!$event->isAlreadyDispatched()) {
+                    $this->bus->dispatch($event->setDispatched());
                 }
             })
         ;
@@ -115,12 +124,12 @@ final class DomainEventsSubscriber implements EventSubscriber
                 return $entity->popEvents();
             })
             ->each(function (DomainEventInterface $event) {
-                if ($event instanceof AbstractAsyncDomainEvent) {
-                    $this->bus->dispatch($event->setLifecycleEvent(Events::postFlush));
-                } else if ($event instanceof CustomDomainEventInterface) {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush), $event->getEventName());
-                } else {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush));
+                $eventName = $event instanceof CustomDomainEventInterface
+                    ? $event->getEventName()
+                    : \get_class($event);
+
+                if ($event instanceof AbstractSyncDomainEvent) {
+                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush), $eventName);
                 }
             })
         ;
