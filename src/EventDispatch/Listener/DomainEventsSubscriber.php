@@ -25,7 +25,6 @@ use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Tightenco\Collect\Support\Collection;
 
 final class DomainEventsSubscriber implements EventSubscriber
 {
@@ -61,13 +60,18 @@ final class DomainEventsSubscriber implements EventSubscriber
         if ($this->preFlushAlreadyInvoked) {
             return;
         }
-        $this->preFlushAlreadyInvoked = true;
 
-        $this->fillEntities($eventArgs)
-            ->flatMap(static function (RaiseEventsInterface $entity) {
-                return $entity->popEvents();
-            })
-            ->each(function (DomainEventInterface $event) {
+        $this->preFlushAlreadyInvoked = true;
+        $events = [];
+
+        foreach ($this->fillEntities($eventArgs) as $entity) {
+            if ($entity instanceof RaiseEventsInterface) {
+                $events = array_merge($events, $entity->popEvents());
+            }
+        }
+
+        foreach ($events as $event) {
+            if ($event instanceof DomainEventInterface) {
                 if (!$event instanceof AbstractSyncDomainEvent) {
                     return;
                 }
@@ -77,8 +81,8 @@ final class DomainEventsSubscriber implements EventSubscriber
                     : \get_class($event);
 
                 $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::preFlush), $eventName);
-            })
-        ;
+            }
+        }
 
         $this->preFlushAlreadyInvoked = false;
     }
@@ -88,26 +92,35 @@ final class DomainEventsSubscriber implements EventSubscriber
         if ($this->onFlushAlreadyInvoked) {
             return;
         }
-        $this->onFlushAlreadyInvoked = true;
 
-        $this->fillEntities($eventArgs)
-            ->flatMap(static function (RaiseEventsInterface $entity) {
-                return $entity->popEvents();
-            })
-            ->each(function (DomainEventInterface $event) {
+        $this->onFlushAlreadyInvoked = true;
+        $events = [];
+
+        foreach ($this->fillEntities($eventArgs) as $entity) {
+            if ($entity instanceof RaiseEventsInterface) {
+                $events = array_merge($events, $entity->popEvents());
+            }
+        }
+
+        foreach ($events as $event) {
+            if ($event instanceof DomainEventInterface) {
                 $eventName = $event instanceof CustomDomainEventInterface
                     ? $event->getEventName()
                     : \get_class($event);
 
                 if ($event instanceof AbstractAsyncDomainEvent) {
                     $this->bus->dispatch($event->setLifecycleEvent(Events::onFlush));
-                } else if ($event instanceof AbstractSyncDomainEvent) {
-                    $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush) , $eventName);
-                } else if (!$event->isAlreadyDispatched()) {
-                    $this->bus->dispatch($event->setDispatched());
+                } else {
+                    if ($event instanceof AbstractSyncDomainEvent) {
+                        $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::onFlush), $eventName);
+                    } else {
+                        if (!$event->isAlreadyDispatched()) {
+                            $this->bus->dispatch($event->setDispatched());
+                        }
+                    }
                 }
-            })
-        ;
+            }
+        }
 
         $this->onFlushAlreadyInvoked = false;
     }
@@ -117,13 +130,18 @@ final class DomainEventsSubscriber implements EventSubscriber
         if ($this->postFlushAlreadyInvoked) {
             return;
         }
-        $this->postFlushAlreadyInvoked = true;
 
-        $this->fillEntities($eventArgs)
-            ->flatMap(static function (RaiseEventsInterface $entity) {
-                return $entity->popEvents();
-            })
-            ->each(function (DomainEventInterface $event) {
+        $this->postFlushAlreadyInvoked = true;
+        $events = [];
+
+        foreach ($this->fillEntities($eventArgs) as $entity) {
+            if ($entity instanceof RaiseEventsInterface) {
+                $events = array_merge($events, $entity->popEvents());
+            }
+        }
+
+        foreach ($events as $event) {
+            if ($event instanceof DomainEventInterface) {
                 $eventName = $event instanceof CustomDomainEventInterface
                     ? $event->getEventName()
                     : \get_class($event);
@@ -131,8 +149,8 @@ final class DomainEventsSubscriber implements EventSubscriber
                 if ($event instanceof AbstractSyncDomainEvent) {
                     $this->eventDispatcher->dispatch($event->setLifecycleEvent(Events::postFlush), $eventName);
                 }
-            })
-        ;
+            }
+        }
 
         $this->postFlushAlreadyInvoked = false;
     }
@@ -142,23 +160,31 @@ final class DomainEventsSubscriber implements EventSubscriber
      *
      * @return RaiseEventsInterface[]
      */
-    private function fillEntities(EventArgs $eventArgs): Collection
+    private function fillEntities(EventArgs $eventArgs): array
     {
-        $domainEventsEntities = new Collection();
-        foreach ($eventArgs->getEntityManager()->getUnitOfWork()->getIdentityMap() as $class => $entities) {
+        $domainEventsEntities = [];
+        foreach (
+            $eventArgs->getEntityManager()
+                ->getUnitOfWork()
+                ->getIdentityMap() as $class => $entities
+        ) {
             if (!\in_array(RaiseEventsInterface::class, \class_implements($class), true)) {
                 continue;
             }
 
-            $domainEventsEntities = $domainEventsEntities->merge($entities);
+            $domainEventsEntities = array_merge($domainEventsEntities, $entities);
         }
 
-        foreach ($eventArgs->getEntityManager()->getUnitOfWork()->getScheduledEntityDeletions() as $entityToDelete) {
+        foreach (
+            $eventArgs->getEntityManager()
+                ->getUnitOfWork()
+                ->getScheduledEntityDeletions() as $entityToDelete
+        ) {
             if (!$entityToDelete instanceof RaiseEventsInterface) {
                 continue;
             }
 
-            $domainEventsEntities->add($entityToDelete);
+            $domainEventsEntities[] = $entityToDelete;
         }
 
         return $domainEventsEntities;
